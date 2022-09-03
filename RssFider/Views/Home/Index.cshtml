@@ -1,0 +1,17 @@
+﻿@model IEnumerable<RssFider.Models.Article>
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>RssFider</title>
+</head>
+<body>
+<div>
+      @foreach(var article in Model) {
+          <a href=@article.Url>@article.Title</a>
+          @article.ReleaseDate
+          @article.Description
+      }
+</div>
+</body>
+</html>
