@@ -5,10 +5,20 @@ namespace RssFider.Controllers;
 
 public class HomeController : Controller
 {
+    private readonly IHabrBot _habrBot;
+    private readonly IConfiguration _configuration;
+
+    public HomeController(IHabrBot habrBot, IConfiguration configuration)
+    {
+        _habrBot = habrBot;
+        _configuration = configuration;
+    }
+    
     // GET
     public IActionResult Index()
     {
-        var articles = HabrBot.GetArticles();
+        ViewData["FeedUpdateTimeout"] = _configuration["updateTimeout"] ?? "500";
+        var articles = _habrBot.GetArticles();
         return View(articles);
     }
 }

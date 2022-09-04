@@ -4,14 +4,21 @@ using RssFider.Models;
 
 namespace RssFider.Services;
 
-public class HabrBot
+public class HabrBot : IHabrBot
 {
-    public static List<Article> GetArticles()
+    private readonly IConfiguration _configuration;
+
+    public HabrBot(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+
+    public List<Article> GetArticles()
     {
         var articles = new List<Article>();
         var doc = GetXml();
 
-        var nodes = doc.DocumentElement?.SelectNodes("/channel/item");
+        var nodes = doc.DocumentElement?.SelectNodes("/rss/channel/item");
         foreach (XmlNode node in nodes)
         {
             var title = node?.SelectSingleNode("title")?.InnerText ?? string.Empty;
@@ -33,25 +40,52 @@ public class HabrBot
         return articles;
     }
 
-    private static XmlDocument GetXml()
+    private XmlDocument GetXml()
     {
+        var httpClient = new HttpClient();
+        var host = _configuration["proxy:host"] ?? string.Empty;
+        var port = _configuration["proxy:port"] ?? string.Empty;
+        var userName = _configuration["proxy:userName"] ?? string.Empty;
+        var password = _configuration["proxy:password"] ?? string.Empty;
+        
+        // First create a proxy object
+        var proxy = new WebProxy
+        {
+            Address = new Uri($"http://{host}:{port}"),
+            BypassProxyOnLocal = false,
+            UseDefaultCredentials = false,
+
+            // *** These creds are given to the proxy server, not the web server ***
+            Credentials = new NetworkCredential(
+                userName: userName,
+                password: password)
+        };
+
+        // Now create a client handler which uses that proxy
+        var httpClientHandler = new HttpClientHandler
+        {
+            Proxy = proxy,
+        };
+
+        if (_configuration["useProxy"] == "true")
+        {
+            httpClient = new HttpClient(handler: httpClientHandler, disposeHandler: true);
+        }
+
         var doc = new XmlDocument();
         try
         {
-            var url = "https://habr.com/ru/rss/interesting/";
-            var proxyUrl = "http://xxx.xxx.x.x:8080/";
+            var url = _configuration["feed"];
+            var result = httpClient.GetAsync(url).Result;
+            var xml = result.Content.ReadAsStringAsync().Result;
 
-            var wp = new WebProxy(proxyUrl)
+            if (string.IsNullOrEmpty(xml))
             {
-                Credentials = CredentialCache.DefaultCredentials
-            };
-            var wc = new WebClient();
-            wc.Proxy = wp;
+                Console.WriteLine("something wrong");
+                return new XmlDocument();
+            }
 
-            var ms = new MemoryStream(wc.DownloadData(url));
-            var rdr = new XmlTextReader(ms);
-
-            doc.Load(rdr);
+            doc.LoadXml(xml);
         }
         catch (Exception ex)
         {
