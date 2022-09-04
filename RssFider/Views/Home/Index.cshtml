@@ -1,6 +1,11 @@
 ﻿@model IEnumerable<RssFider.Models.Article>
 <!DOCTYPE html>
 
+@{
+    var time = $"{ViewData["FeedUpdateTimeout"]}";
+}
+
+<meta http-equiv="refresh" content="@time">
 <html>
 <head>
     <title>RssFider</title>
@@ -9,8 +14,11 @@
 <div>
       @foreach(var article in Model) {
           <a href=@article.Url>@article.Title</a>
+          <br>
           @article.ReleaseDate
+          <br>
           @article.Description
+          <br>
       }
 </div>
 </body>
