@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <useProxy>false</useProxy>
+    <proxy>
+        <host>212.170.50.120</host>
+        <port>4145</port>
+        <userName>yourUserName</userName>
+        <password>yourPassword</password>
+    </proxy>
+    <feed>https://habr.com/ru/rss/interesting/</feed>
+    <updateTimeout>500</updateTimeout>
+    <addMarkupDescription>true</addMarkupDescription>>
+</configuration>
