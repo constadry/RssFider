@@ -3,7 +3,9 @@
 
 @{
     var time = $"{ViewData["FeedUpdateTimeout"]}";
+    var addMarkupDescription = $"{ViewData["AddMarkupDescription"]}";
 }
+<input type="hidden" id="addMarkupDescription" value="@addMarkupDescription">
 
 <meta http-equiv="refresh" content="@time">
 <html>
@@ -12,14 +14,31 @@
 </head>
 <body>
 <div>
-      @foreach(var article in Model) {
-          <a href=@article.Url>@article.Title</a>
-          <br>
-          @article.ReleaseDate
-          <br>
-          @article.Description
-          <br>
-      }
+    @foreach (var article in Model)
+    {
+        <div class="item">
+            <a href=@article.Url>@article.Title</a>
+            <br>
+            @article.ReleaseDate
+            <br>
+            <div class="item_description">
+                @article.Description
+            </div>
+        </div>
+    }
 </div>
+<script>
+if (document.getElementById("addMarkupDescription").getAttribute("value") === "true") {
+    let items = document.getElementsByClassName("item");
+    for (let i = 0; i < items.length; i++) {
+        let item_description = items[i].getElementsByClassName('item_description')[0];
+        let html = item_description.textContent;
+        let description = document.createElement("div");
+        description.innerHTML = html;
+        items[i].appendChild(description);
+        item_description.textContent = "";
+    }
+}
+</script>
 </body>
 </html>

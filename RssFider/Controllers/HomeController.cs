@@ -18,6 +18,7 @@ public class HomeController : Controller
     public IActionResult Index()
     {
         ViewData["FeedUpdateTimeout"] = _configuration["updateTimeout"] ?? "500";
+        ViewData["AddMarkupDescription"] = _configuration["addMarkupDescription"] ?? "false";
         var articles = _habrBot.GetArticles();
         return View(articles);
     }
